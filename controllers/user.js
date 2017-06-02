@@ -18,7 +18,7 @@ function saveUser(req, res) {
     user.name = params.name;
     user.surname = params.surname;
     user.email = params.email;
-    user.role = 'ROLE_USER';
+    user.role = 'ROLE_ADMIN';
     user.image = 'null';
 
     if (params.password) {
@@ -34,7 +34,29 @@ function saveUser(req, res) {
     } else res.status(500).send({ message: 'missing param <password> in request' });
 }
 
+
+function loginUser(req, res) {
+    var params = req.body;
+    var email = params.email;
+    var password = params.password;
+    User.findOne({ email: email.toLowerCase() }, (err, user) => {
+        if (err)
+            return res.status(500).send({ message: 'Internal server error 1' });
+        if (!user)
+            return res.status('404').send({ message: 'User whit email "' + email + '" not found' });
+        bcrypt.compare(password, user.password, (err, check) => {
+            if (check) {
+                if (params.gethash)
+                    return res.status(200).send({ message: 'gethash' });
+                return res.status(200).send({ user });
+            }
+            return res.status(500).send({ message: 'Internal server error 2' });
+        });
+    });
+}
+
 module.exports = {
     test,
-    saveUser
+    saveUser,
+    loginUser
 };
