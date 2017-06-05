@@ -2,6 +2,7 @@
 var bcrypt = require('bcrypt-nodejs');
 
 var User = require('../models/user');
+var jwt = require('../services/jwt');
 
 function test(req, res) {
     res.status(200).send({
@@ -47,7 +48,7 @@ function loginUser(req, res) {
         bcrypt.compare(password, user.password, (err, check) => {
             if (check) {
                 if (params.gethash)
-                    return res.status(200).send({ message: 'gethash' });
+                    return res.status(200).send({ token: jwt.createToken(user) });
                 return res.status(200).send({ user });
             }
             return res.status(500).send({ message: 'Internal server error 2' });
