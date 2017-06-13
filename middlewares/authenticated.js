@@ -7,7 +7,7 @@ var secret_key = 'PUT_THE_SECRET_KEY_HERE';
 
 exports.ensureAuth = (req, res, next) => {
     if (!req.headers.authorization) {
-        return res.status(403).send({ message: '"authentication" header missing' })
+        return res.status(403).send({ message: '"authorization" header missing' });
     }
     var token = req.headers.authorization.replace(/['"]+/g, '');
     try {
