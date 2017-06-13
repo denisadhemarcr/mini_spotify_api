@@ -2,6 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
+var mongoosePagination = require('mongoose-pagination');
 
 var Artist = require('../models/artist');
 var Album = require('../models/album');
@@ -17,6 +18,27 @@ function getArtist(request, response) {
                 response.status(200).send({ message: "artist with id <" + artist_id + "> does not exists" });
             } else
                 response.status(200).send({ artist: data });
+        }
+    });
+}
+
+
+function getArtists(request, response){
+    var page = request.params.page ? request.params.page : 1;
+    var items_page = 3;
+    Artist.find().sort('name').paginate(page, items_page, (err, data, total)=>{
+        if(err){
+            response.status(500).send({ message: "error getting artists" });
+        }else{
+            if(data){
+                return response.status(200).send({
+                    items: total,
+                    artists: data
+                });
+            }
+            else{
+                response.status(400).send({ message: "there no artists" });
+            }
         }
     });
 }
@@ -41,5 +63,6 @@ function saveArtist(request, response) {
 
 module.exports = {
     getArtist,
-    saveArtist
+    saveArtist,
+    getArtists
 };
