@@ -117,16 +117,17 @@ function uploadImage(request, response) {
         console.log(request.files.image.path.split('/')[2]);
         file_name = request.files.image.path.split('/')[2];
         var ext = file_name.split('.')[1];
-        if (ext == 'jpg' || ext == 'gif'  || ext == 'png') {
+        if (ext == 'jpg' || ext == 'gif' || ext == 'png') {
             Artist.findByIdAndUpdate(artist_id, { image: file_name }, (err, data) => {
                 if (err) {
                     response.status(500).send({ message: "Error updating artist image" });
-                }
-                if (data) {
-                    response.status(200).send({ artist_updated: data });
-                }
-                else {
-                    response.status(404).send({ message: "image not saved" });
+                } else {
+                    if (data) {
+                        response.status(200).send({ artist_updated: data });
+                    }
+                    else {
+                        response.status(404).send({ message: "image not saved" });
+                    }
                 }
             });
         } else {
@@ -135,6 +136,7 @@ function uploadImage(request, response) {
     } else
         response.status(200).send({ message: 'image file is required' });
 }
+
 
 function getImageFile(request, response) {
     var imageFile = request.params.imageFile;
