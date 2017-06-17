@@ -84,9 +84,77 @@ function saveAlbum(request, response) {
     });
 }
 
+
+function deleteAlbum(request, response) {
+    var album_id = request.params.id;
+    Album.findByIdAndRemove(album_id, (err, album_removed) => {
+        if (err) {
+            response.status(500).send({ message: "ERROR REMOVING ALBUM: ", err });
+        } else {
+            if (!album_removed) {
+                response.status(404).send({ message: "ALBUM NOT REMOVED!!!!" });
+            } else {
+                Song.find({ album: album_removed._id }).remove((err, song_removed) => {
+                    if (err) {
+                        response.status(500).send({ message: "ERROR REMOVING SONG: ", err });
+                    } else if (!song_removed) {
+                        response.status(404).send({ message: "SONG NOT REMOVED!!!!" });
+                    } else {
+                        response.status(200).send({ album_removed, song_removed });
+                    }
+                });
+            }
+        }
+    });
+}
+
+function uploadImage(request, response) {
+    var album_id = request.params.id;
+    var file_name = 'Not uploaded!!!';
+    if (request.files) {
+        console.log(request.files.image.path.split('/')[2]);
+        file_name = request.files.image.path.split('/')[2];
+        var ext = file_name.split('.')[1];
+        if (ext == 'jpg' || ext == 'gif' || ext == 'png') {
+            Album.findByIdAndUpdate(album_id, { image: file_name }, (err, data) => {
+                if (err) {
+                    response.status(500).send({ message: "Error updating album image" });
+                } else {
+                    if (data) {
+                        response.status(200).send({ album_updated: data });
+                    }
+                    else {
+                        response.status(404).send({ message: "image not saved" });
+                    }
+                }
+            });
+        } else {
+            response.status(200).send({ message: 'plase, send an image file(".jpg", ".png", ".gif")' });
+        }
+    } else
+        response.status(200).send({ message: 'image file is required' });
+}
+
+
+function getImageFile(request, response) {
+    var imageFile = request.params.imageFile;
+    fs.exists('./upload/albums/' + imageFile, (exists) => {
+        if (exists) {
+            response.sendFile(path.resolve('./upload/albums/' + imageFile));
+        }
+        else {
+            response.status(200).send({ message: 'image does not exists' });
+        }
+    });
+}
+
+
 module.exports = {
     getAlbum,
     getAlbums,
     saveAlbum,
-    updateAlbum
+    updateAlbum,
+    deleteAlbum,
+    uploadImage,
+    getImageFile
 };
