@@ -14,7 +14,14 @@ var song_routes = require('./routes/song');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-//config headers
+//config http headers
+app.use((request, response, next)=>{
+    request.header('Access-Control-Allow-Origin', '*');
+    request.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-Width, Content-Type, Access-Control-Allow-Request-Method');
+    request.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    request.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
+});
 
 //base routes
 
